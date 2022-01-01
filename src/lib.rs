@@ -63,6 +63,9 @@ mod future;
 mod driver;
 mod runtime;
 
+mod util;
+
+pub mod sync;
 pub mod buf;
 pub mod fs;
 
