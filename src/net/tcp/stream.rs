@@ -177,6 +177,34 @@ impl TcpStream {
     ///
     /// This function will attempt to write the entire contents of `bufs`, but
     /// the entire write may not succeed, or the write may also generate an
+    /// error.
+    ///
+    /// # Return
+    ///
+    /// The method returns the operation result and the same array of buffers
+    /// passed in as an argument. A return value of `0` typically means that the
+    /// underlying socket is no longer able to accept bytes and will likely not
+    /// be able to in the future as well, or that the buffer provided is empty.
+    ///
+    /// # Errors
+    ///
+    /// Each call to `writev` may generate an I/O error indicating that the
+    /// operation could not be completed. If an error is returned then no bytes
+    /// in the buffer were written to this writer.
+    ///
+    /// It is **not** considered an error if the entire buffer could not be
+    /// written to this writer.
+    ///
+    /// [`Ok(n)`]: Ok
+    pub async fn writev<T: IoBuf>(&self, bufs: Vec<T>) -> crate::BufResult<usize, Vec<T>> {
+        self.inner.writev(bufs).await
+    }
+
+    /// Write data from buffers into this socket returning how many bytes were
+    /// written.
+    ///
+    /// This function will attempt to write the entire contents of `bufs`, but
+    /// the entire write may not succeed, or the write may also generate an
     /// error. The bytes will be written starting at the specified offset.
     ///
     /// # Return
@@ -188,7 +216,7 @@ impl TcpStream {
     ///
     /// # Errors
     ///
-    /// Each call to `write` may generate an I/O error indicating that the
+    /// Each call to `writev_at` may generate an I/O error indicating that the
     /// operation could not be completed. If an error is returned then no bytes
     /// in the buffer were written to this writer.
     ///
@@ -196,8 +224,8 @@ impl TcpStream {
     /// written to this writer.
     ///
     /// [`Ok(n)`]: Ok
-    pub async fn writev<T: IoBuf>(&self, buf: Vec<T>) -> crate::BufResult<usize, Vec<T>> {
-        self.inner.writev(buf).await
+    pub async fn writev_at<T: IoBuf>(&self, bufs: Vec<T>, offset: u64) -> crate::BufResult<usize, Vec<T>> {
+        self.inner.writev_at(bufs, offset).await
     }
 
     /// Shuts down the read, write, or both halves of this connection.

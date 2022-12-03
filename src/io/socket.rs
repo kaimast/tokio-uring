@@ -88,8 +88,12 @@ impl Socket {
         (Ok(()), buf.into_inner())
     }
 
-    pub async fn writev<T: IoBuf>(&self, buf: Vec<T>) -> crate::BufResult<usize, Vec<T>> {
-        let op = Op::writev_at(&self.fd, buf, 0).unwrap();
+    pub async fn writev<T: IoBuf>(&self, bufs: Vec<T>) -> crate::BufResult<usize, Vec<T>> {
+        self.writev_at(bufs, 0).await
+    }
+
+    pub async fn writev_at<T: IoBuf>(&self, bufs: Vec<T>, offset: u64) -> crate::BufResult<usize, Vec<T>> {
+        let op = Op::writev_at(&self.fd, bufs, offset).unwrap();
         op.await
     }
 
