@@ -285,3 +285,5 @@ pub async fn no_op() -> std::io::Result<()> {
     let op = Op::<io::NoOp>::no_op().unwrap();
     op.await
 }
+
+pub use tokio_uring_macros::test;
