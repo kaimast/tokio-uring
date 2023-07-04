@@ -25,7 +25,7 @@ pub fn test(_args: TokenStream, item: TokenStream) -> TokenStream {
     let body = &input.block;
     let brace_token = input.block.brace_token;
 
-    let header = quote!{
+    let header = quote! {
         #[::core::prelude::v1::test]
     };
 
