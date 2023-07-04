@@ -36,6 +36,21 @@ async fn basic_read() {
 }
 
 #[tokio_uring::test]
+async fn read_exact_buf_too_long() {
+    let data = HELLO.repeat(1);
+    let buf = Vec::with_capacity(data.len() * 2);
+
+    let mut tempfile = tempfile();
+    tempfile.write_all(&data).unwrap();
+
+    let file = File::open(tempfile.path()).await.unwrap();
+    let (res, _buf) = file.read_exact_at(buf, 0).await;
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind(), std::io::ErrorKind::UnexpectedEof);
+}
+
+#[tokio_uring::test]
 async fn basic_read_exact() {
     let data = HELLO.repeat(1000);
     let buf = Vec::with_capacity(data.len());
@@ -45,6 +60,21 @@ async fn basic_read_exact() {
 
     let file = File::open(tempfile.path()).await.unwrap();
     let (res, buf) = file.read_exact_at(buf, 0).await;
+    res.unwrap();
+    assert_eq!(buf, data);
+}
+
+#[tokio_uring::test]
+async fn basic_read_to_end() {
+    let data = HELLO.repeat(1);
+
+    let mut tempfile = tempfile();
+    tempfile.write_all(&data).unwrap();
+
+    let file = File::open(tempfile.path()).await.unwrap();
+
+    let buf = vec![];
+    let (res, buf) = file.read_at_to_end(0, buf).await;
     res.unwrap();
     assert_eq!(buf, data);
 }
